@@ -20,7 +20,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Review>  addReview(@RequestBody ReviewRequest request) {
         Review review = reviewService.addReview(request.getUserId(), request.getVenueId(), request.getComment(), request.getRating());
         return ResponseEntity.ok(review);
@@ -36,12 +36,17 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewById(reviewId));
     }
 
-    @PutMapping("/{reviewId}")
+    @GetMapping("/all")
+    public ResponseEntity<List<Review>> getAllReviews() {
+        return ResponseEntity.ok(reviewService.getAllReviews());
+    }
+
+    @PutMapping("/update/{reviewId}")
     public ResponseEntity<Review> updateReview(@PathVariable Integer reviewId, @RequestBody ReviewRequest request) {
         return ResponseEntity.ok(reviewService.updateReview(reviewId, request.getComment(), request.getRating()));
     }
 
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/delete/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable Integer reviewId) {
         return ResponseEntity.ok(reviewService.deleteReview(reviewId));
     }

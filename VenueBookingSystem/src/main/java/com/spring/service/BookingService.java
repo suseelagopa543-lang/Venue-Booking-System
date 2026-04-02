@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.SlotRepo;
@@ -33,7 +34,7 @@ public class BookingService {
         }
 
         Slot slot = slotRepo.findByIdForUpdate(slotId)
-                .orElseThrow(() -> new IllegalArgumentException("Slot not found with id: " + slotId));
+                .orElseThrow(() -> new ResourceNotFoundException("Slot not found with id: " + slotId));
 
         if (slot.getSlotStatus() == SlotStatus.BOOKED) {
             throw new IllegalStateException("Slot is not available for booking");
@@ -42,7 +43,7 @@ public class BookingService {
 
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         slot.setSlotStatus(SlotStatus.BOOKED);
 
@@ -63,7 +64,7 @@ public class BookingService {
             throw new IllegalArgumentException("Booking ID cannot be null");
         }
         Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
         if(booking.getBookingStatus() == BookingStatus.CANCELLED) {
             throw new IllegalStateException("Booking is already cancelled");
         }
@@ -83,7 +84,7 @@ public class BookingService {
             throw new IllegalArgumentException("Booking ID cannot be null");
         }
         return bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
     }
 
     // Get all bookings for a user
@@ -92,7 +93,7 @@ public class BookingService {
             throw new IllegalArgumentException("User ID cannot be null");
         }
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         return bookingRepo.findByUserId(userId);
     }
 }

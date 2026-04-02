@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.Booking;
 import com.spring.model.User;
 import com.spring.repo.BookingRepo;
@@ -36,14 +37,14 @@ public class UserService {
     // Get user details by ID
     public User getUserDetails(Integer userId) {
         return userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 
     // Update user details (only non-null fields will be updated)
     public User updateUser(Integer userId, User updatedUser) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (updatedUser.getUserName() != null) {
             user.setUserName(updatedUser.getUserName());

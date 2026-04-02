@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.Vendor;
 import com.spring.model.Venue;
 import com.spring.repo.VendorRepo;
@@ -58,7 +59,7 @@ public class VenueService {
 
     // Update venue details (only non-null fields will be updated)
     public Venue updateVenue(Integer userId, Venue updatedVenue, Integer venueId) {
-        Venue venue = venueRepo.findById(venueId).orElseThrow(() -> new RuntimeException("Venue not found with id: " + venueId));
+        Venue venue = venueRepo.findById(venueId).orElseThrow(() -> new ResourceNotFoundException("Venue not found with id: " + venueId));
 
         Vendor vendor=vendorRepo.findByUserUserId(userId);
         if(!venue.getVendor().getVendorId().equals(userId)){

@@ -23,13 +23,13 @@ public class VendorController {
         this.vendorService = vendorService;
      }
 
-     @GetMapping("/{vendorId}")
+     @GetMapping("/get-vendorDetails/{vendorId}")
     public ResponseEntity<Vendor> getVendorDetails(@PathVariable Integer vendorId) {
         Vendor vendor = vendorService.getVendorById(vendorId);
         return new ResponseEntity<>(vendor, HttpStatus.OK);
     }
 
-    @GetMapping("/{vendorId}/bookings")
+    @GetMapping("/get-vendorBookings/{vendorId}")
     public ResponseEntity<List<Booking>> getVendorBookings(@PathVariable Integer vendorId) {
         List<Booking> list= vendorService.getVendorBookings(vendorId);
         return new ResponseEntity<>(list, HttpStatus.OK);

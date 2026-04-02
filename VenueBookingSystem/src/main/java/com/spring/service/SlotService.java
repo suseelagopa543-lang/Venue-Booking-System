@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.Slot;
 import com.spring.model.SlotStatus;
 import com.spring.model.Venue;
@@ -37,7 +38,7 @@ public class SlotService
         }
 
         Venue venue = venueRepo.findById(venueId)
-                .orElseThrow(() -> new IllegalArgumentException("Venue not found with id "+venueId));
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id "+venueId));
 
         if (!start.isBefore(end))
         {

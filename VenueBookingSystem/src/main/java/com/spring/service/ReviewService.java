@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.Review;
 import com.spring.model.User;
 import com.spring.model.Venue;
@@ -38,10 +39,10 @@ public class ReviewService {
         }
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         Venue venue = venueRepo.findById(venueId)
-                .orElseThrow(() -> new IllegalArgumentException("Venue not found with id: " + venueId));
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id: " + venueId));
 
         Review review = new Review();
         review.setUser(user);
@@ -55,11 +56,13 @@ public class ReviewService {
     // Get all reviews for a venue
     public List<Review> getReviewsByVenue(Integer venueId) {
 
-        if (venueId == null) {
-            throw new IllegalArgumentException("Venue ID cannot be null");
+        List<Review> reviews = reviewRepo.findByVenueVenueId(venueId);
+
+        if (reviews.isEmpty()) {
+            throw new ResourceNotFoundException("No reviews found for venue id: " + venueId);
         }
 
-        return reviewRepo.findByVenueVenueId(venueId);
+        return reviews;
     }
 
     // Get review by ID
@@ -70,7 +73,17 @@ public class ReviewService {
         }
 
         return reviewRepo.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+    }
+
+    public List<Review> getAllReviews() {
+        List<Review> reviews = reviewRepo.findAll();
+
+        if (reviews.isEmpty()) {
+            throw new ResourceNotFoundException("No reviews found");
+        }
+
+        return reviews;
     }
 
     // Update review
@@ -85,7 +98,7 @@ public class ReviewService {
         }
 
         Review review = reviewRepo.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
 
         review.setComment(comment);
         review.setRating(rating);
@@ -101,7 +114,7 @@ public class ReviewService {
         }
 
         Review review = reviewRepo.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
 
         reviewRepo.delete(review);
 

@@ -19,14 +19,14 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping
+    @PostMapping("/make-payment")
     public ResponseEntity<Payment> makePayment(@RequestBody PaymentRequest paymentRequest)
     {
             Payment payment=paymentService.makePayment(paymentRequest.getBookingId(),paymentRequest.getAmount(),paymentRequest.getPaymentMethod());
             return new ResponseEntity<>(payment, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{bookingId}")
+    @GetMapping("/get-payment-details/{bookingId}")
     public ResponseEntity<Payment> getPaymentDetails(@PathVariable Integer bookingId)
     {
         Payment payment=paymentService.getPaymentDetails(bookingId);

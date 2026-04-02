@@ -21,19 +21,19 @@ public class SlotController {
         this.slotService = slotService;
     }
 
-    @PostMapping("/venues/{venueId}/slots")
+    @PostMapping("/create-slots/{venueId}")
     public ResponseEntity<Slot> createSlot(@PathVariable Integer venueId,@RequestParam LocalDate date,@RequestParam LocalTime start,@RequestParam LocalTime end) {
         Slot slot=slotService.createSlot(venueId, date, start, end);
         return new ResponseEntity<>(slot, HttpStatus.CREATED);
     }
 
-    @GetMapping("/venues/{venueId}/slots")
+    @GetMapping("/get-slots-byVenue/{venueId}")
     public ResponseEntity<List<Slot>> getSlotByVenue(@PathVariable Integer venueId) {
         List<Slot> slots = slotService.getSlotsByVenue(venueId);
         return new ResponseEntity<>(slots, HttpStatus.OK);
     }
 
-    @GetMapping("/venues/{venueId}/slots/by-date")
+    @GetMapping("/get-slots-byDate/{venueId}")
     public ResponseEntity<List<Slot>> getSlotsByDate(@PathVariable Integer venueId, @RequestParam LocalDate date) {
         List<Slot> slots = slotService.getSlotsByDate(venueId, date);
         return new ResponseEntity<>(slots, HttpStatus.OK);

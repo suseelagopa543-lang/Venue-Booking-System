@@ -1,5 +1,6 @@
 package com.spring.service;
 
+import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.PaymentRepo;
@@ -29,7 +30,7 @@ public class PaymentService{
         }
 
         Booking booking = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
         if(booking.getBookingStatus()== BookingStatus.CANCELLED){
             throw new IllegalStateException("Cannot make payment for a cancelled booking");
@@ -55,7 +56,7 @@ public class PaymentService{
         }
 
         return paymentRepo.findByBookingBookingId(bookingId)
-                .orElseThrow(() -> new RuntimeException("Payment not found for booking id: " + bookingId));
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found for booking id: " + bookingId));
     }
 
 }

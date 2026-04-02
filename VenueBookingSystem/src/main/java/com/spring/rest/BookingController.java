@@ -20,14 +20,14 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping
+    @PostMapping("/book")
     public ResponseEntity<Booking> bookSlot(@RequestParam Integer userId,@RequestParam  Integer slotId) {
        Booking booking = bookingService.bookSlot(userId, slotId);
        return new ResponseEntity<>(booking, HttpStatus.CREATED);
 
     }
 
-    @PostMapping("/{bookingId}/cancel")
+    @PostMapping("/cancel/{bookingId}")
     public ResponseEntity<Booking> cancelBooking(@PathVariable Integer bookingId) {
         Booking booking = bookingService.cancelBooking(bookingId);
         return new ResponseEntity<>(booking, HttpStatus.OK);
