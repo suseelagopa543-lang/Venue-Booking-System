@@ -35,7 +35,7 @@ public class PaymentService{
         if(booking.getBookingStatus()== BookingStatus.CANCELLED){
             throw new IllegalStateException("Cannot make payment for a cancelled booking");
         }
-        if(paymentRepo.existsByBookingId(bookingId)){
+        if(paymentRepo.existsByBooking_BookingId(bookingId)){
             throw new IllegalStateException("Payment already exists for this booking");
         }
 

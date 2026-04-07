@@ -23,6 +23,10 @@ public class Booking {
     private BookingStatus bookingStatus;
 
     @ManyToOne
+    @JoinColumn(name = "vendor_id")
+    private Vendor vendor;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

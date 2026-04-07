@@ -76,6 +76,6 @@ public class UserService {
 
     // Get all bookings for a user
     public List<Booking> getUserBooking(Integer userId) {
-        return bookingRepo.findByUserId(userId);
+        return bookingRepo.findByUser_UserId(userId);
     }
 }

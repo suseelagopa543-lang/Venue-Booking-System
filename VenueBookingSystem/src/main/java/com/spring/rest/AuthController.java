@@ -3,6 +3,7 @@ package com.spring.rest;
 import com.spring.Request.RegisterRequest;
 import com.spring.Security.JwtService;
 import com.spring.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

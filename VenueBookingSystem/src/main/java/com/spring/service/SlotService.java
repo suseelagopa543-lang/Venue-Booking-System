@@ -46,7 +46,7 @@ public class SlotService
         }
 
         boolean exists = slotRepo
-                .existsByVenueIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                .existsByVenue_VenueIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
                         venueId, date, end, start
                 );
 
@@ -69,7 +69,7 @@ public class SlotService
         if (venueId==null) {
             throw new IllegalArgumentException("Venue Id cannot be null");
         }
-         return slotRepo.findByVenueId(venueId);
+         return slotRepo.findByVenue_VenueId(venueId);
 
     }
 
@@ -79,7 +79,7 @@ public class SlotService
             throw new IllegalArgumentException("Date and Venue Id cannot be null");
         }
 
-        return  slotRepo.findByVenueIdAndDate(venueId,date);
+        return  slotRepo.findByVenue_VenueIdAndDate(venueId,date);
     }
 
 }

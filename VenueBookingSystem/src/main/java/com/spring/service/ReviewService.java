@@ -56,7 +56,7 @@ public class ReviewService {
     // Get all reviews for a venue
     public List<Review> getReviewsByVenue(Integer venueId) {
 
-        List<Review> reviews = reviewRepo.findByVenueVenueId(venueId);
+        List<Review> reviews = reviewRepo.findByVenue_VenueId(venueId);
 
         if (reviews.isEmpty()) {
             throw new ResourceNotFoundException("No reviews found for venue id: " + venueId);

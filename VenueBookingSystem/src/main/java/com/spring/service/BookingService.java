@@ -94,6 +94,6 @@ public class BookingService {
         }
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        return bookingRepo.findByUserId(userId);
+        return bookingRepo.findByUser_UserId(userId);
     }
 }

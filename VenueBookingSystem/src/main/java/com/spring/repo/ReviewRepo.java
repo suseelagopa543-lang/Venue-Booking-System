@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepo extends JpaRepository<Review,Integer> {
-    boolean existsByBookingBookingId(Integer bookingId);
-   Optional<User> findUserByBookingId(Integer bookingId);
-    Optional<Venue> findVenueByBookingId(Integer bookingId);
+    boolean existsByBooking_BookingId(Integer bookingId);
+   Optional<Review> findByBooking_BookingId(Integer bookingId);
 
-    List<Review> findByVenueVenueId(Integer venueId);
+
+    List<Review> findByVenue_VenueId(Integer venueId);
 }

@@ -4,6 +4,7 @@ import com.spring.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -40,7 +41,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
          http.csrf(customizer -> customizer.disable());
-         http.authorizeHttpRequests(auth -> auth.requestMatchers("/register","/login").permitAll()
+         http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/register","/auth/login").permitAll()
+                  //Admin has authority on anything
+             .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Admin can access user management endpoints
+
+                 // User methods - only accessible by users
+                 .requestMatchers("/user/**").hasAuthority("ROLE_USER") // Users can access their own bookings and methods
+
+                 // Vendors can access their own venues and methods
+                 .requestMatchers("/vendor/**").hasAuthority("ROLE_VENDOR") // Vendors can access their own venues and methods
+
+
+                 // Venues - Users can GET (read) venues, Vendors can manage (GET, POST, PUT, DELETE)
+                 .requestMatchers(HttpMethod.GET, "/venues/**").hasAnyRole("USER", "VENDOR", "ADMIN")
+                 .requestMatchers(HttpMethod.POST, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
+                 .requestMatchers(HttpMethod.PUT, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
+                 .requestMatchers(HttpMethod.DELETE, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
                  .anyRequest().authenticated());
          http.httpBasic(Customizer.withDefaults());
          http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -53,7 +69,7 @@ public class SecurityConfig {
     public AuthenticationProvider authProvider(){
         DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
+        provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 

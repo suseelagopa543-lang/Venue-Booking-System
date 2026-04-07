@@ -21,21 +21,24 @@ import io.jsonwebtoken.Claims;
 @Service
 public class JwtService {
 
-    private String secretKey;
+    private static final String  secretKey="7A9F2C4E6B8D1F3A5C7E9B2D4F6A8C1E3B5D7F9A2C4E6B8D1F3A5C7E9B2D4F";
 
-    public JwtService() {
-        this.secretKey = getTheSecretKey();
-    }
-    private String getTheSecretKey() {
-        try {
-            KeyGenerator key=KeyGenerator.getInstance("HmacSHA256");
-            SecretKey secret=key.generateKey();
-            return Base64.getEncoder().encodeToString(secret.getEncoded());
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Error in generating the Key " + e.getMessage());
-        }
-    }
+
+
+//    public JwtService() {
+//
+//        this.secretKey = getTheSecretKey();
+//    }
+//    private String getTheSecretKey() {
+//        try {
+//            KeyGenerator key=KeyGenerator.getInstance("HmacSHA256");
+//            SecretKey secret=key.generateKey();
+//            return Base64.getEncoder().encodeToString(secret.getEncoded());
+//        }
+//        catch (Exception e) {
+//            throw new RuntimeException("Error in generating the Key " + e.getMessage());
+//        }
+//    }
     public String generateToken(String name){
         Map<String, Object> claims=new HashMap<>();
         return Jwts.builder()
