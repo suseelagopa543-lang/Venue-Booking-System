@@ -14,4 +14,7 @@ public interface ReviewRepo extends JpaRepository<Review,Integer> {
 
 
     List<Review> findByVenue_VenueId(Integer venueId);
+
+  boolean  existsByUser_UserIdAndVenue_VenueId(
+            Integer userId,Integer venueId);
 }

@@ -9,7 +9,6 @@ import lombok.*;
 @ToString
 public class ReviewRequest {
 
-    private Integer userId;
     private Integer venueId;
     private String comment;
     private Integer rating;

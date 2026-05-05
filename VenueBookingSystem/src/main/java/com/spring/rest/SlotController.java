@@ -1,10 +1,12 @@
 package com.spring.rest;
 
+import com.spring.Request.SlotDTO;
 import com.spring.model.Slot;
 import com.spring.service.SlotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,22 +23,27 @@ public class SlotController {
         this.slotService = slotService;
     }
 
-    @PostMapping("/create-slots/{venueId}")
-    public ResponseEntity<Slot> createSlot(@PathVariable Integer venueId,@RequestParam LocalDate date,@RequestParam LocalTime start,@RequestParam LocalTime end) {
-        Slot slot=slotService.createSlot(venueId, date, start, end);
-        return new ResponseEntity<>(slot, HttpStatus.CREATED);
+    @PostMapping("/{venueId}")
+    @PreAuthorize("hasRole('VENDOR')")
+    public ResponseEntity<String> createSlot(@PathVariable Integer venueId,
+            @RequestParam LocalDate date,@RequestParam LocalTime start,@RequestParam LocalTime end) {
+        slotService.generateSlots(venueId,date,start,end);
+        return new ResponseEntity<>("Slots are Created Successfully", HttpStatus.CREATED);
     }
 
-    @GetMapping("/get-slots-byVenue/{venueId}")
-    public ResponseEntity<List<Slot>> getSlotByVenue(@PathVariable Integer venueId) {
-        List<Slot> slots = slotService.getSlotsByVenue(venueId);
+    @GetMapping("/{venueId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<SlotDTO>> getSlotByVenue(@PathVariable Integer venueId) {
+        List<SlotDTO> slots = slotService.getAvailableSlotsByVenue(venueId);
         return new ResponseEntity<>(slots, HttpStatus.OK);
     }
 
     @GetMapping("/get-slots-byDate/{venueId}")
-    public ResponseEntity<List<Slot>> getSlotsByDate(@PathVariable Integer venueId, @RequestParam LocalDate date) {
-        List<Slot> slots = slotService.getSlotsByDate(venueId, date);
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<SlotDTO>> getSlotsByDate(@PathVariable Integer venueId, @RequestParam LocalDate date) {
+        List<SlotDTO> slots = slotService.getAvailableSlotsByDate(venueId,date);
         return new ResponseEntity<>(slots, HttpStatus.OK);
     }
+
 
 }

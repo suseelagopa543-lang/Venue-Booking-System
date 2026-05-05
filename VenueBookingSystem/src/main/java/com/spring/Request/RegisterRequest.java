@@ -13,18 +13,19 @@ import lombok.*;
 public class RegisterRequest {
 
     @NotBlank(message = "Username is required")
-    private String username;
+    private String userName;
     @NotBlank(message = "Password is required")
-    private String password;
+    private String userPassword;
     @NotBlank(message = "Email is required")
-    private String email;
+    private String userEmail;
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
     @NotNull(message = "Role is required")
     private Role role;
+   // private boolean isVendor;
 
-    //@NotBlank(message = "Business name is required for venue owners")
+   // @NotBlank(message = "Business name is required for venue owners")
     private String businessName;
-    //@NotBlank(message = "Business address is required for venue owners")
+   // @NotBlank(message = "Business address is required for venue owners")
     private String businessAddress;
 }

@@ -7,6 +7,10 @@ import java.util.Optional;
 
 public interface VendorRepo extends JpaRepository<Vendor,Integer> {
 
-    Vendor findByUserUserId(Integer userId);
+//    Vendor findByUserUserId(Integer userId);
+
+    Optional<Vendor> findByUser_UserId(Integer userId);
+
+
 }
 

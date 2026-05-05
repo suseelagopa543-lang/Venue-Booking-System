@@ -1,7 +1,6 @@
 package com.spring.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,12 +19,16 @@ public class User
     private Integer userId;
 
     private String userName;
+
     @Column(unique = true)
     private String userEmail;
 
     private String userPassword;
-    private  String status;
 
+    @Enumerated(EnumType.STRING)
+    private  Status userStatus;
+
+    @Column(unique = true)
     private String phoneNumber;
     private LocalDateTime createdAt;
 

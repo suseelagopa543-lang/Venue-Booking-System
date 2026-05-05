@@ -5,6 +5,7 @@ import com.spring.model.Review;
 import com.spring.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,9 @@ public class ReviewController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Review>  addReview(@RequestBody ReviewRequest request) {
-        Review review = reviewService.addReview(request.getUserId(), request.getVenueId(), request.getComment(), request.getRating());
+        Review review = reviewService.addReview(request.getVenueId(), request.getComment(), request.getRating());
         return ResponseEntity.ok(review);
     }
 
@@ -37,16 +39,19 @@ public class ReviewController {
     }
 
     @GetMapping("/all")
+
     public ResponseEntity<List<Review>> getAllReviews() {
         return ResponseEntity.ok(reviewService.getAllReviews());
     }
 
     @PutMapping("/update/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Review> updateReview(@PathVariable Integer reviewId, @RequestBody ReviewRequest request) {
         return ResponseEntity.ok(reviewService.updateReview(reviewId, request.getComment(), request.getRating()));
     }
 
     @DeleteMapping("/delete/{reviewId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> deleteReview(@PathVariable Integer reviewId) {
         return ResponseEntity.ok(reviewService.deleteReview(reviewId));
     }

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Setter
@@ -19,19 +20,25 @@ public class Booking {
     private Integer bookingId;
     private LocalDateTime bookingTime;
 
+
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;
 
     @ManyToOne
-    @JoinColumn(name = "vendor_id")
-    private Vendor vendor;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_Id")
     private User user;
 
+    @ManyToMany
+    @JoinTable(
+            name = "booking_slots",
+            joinColumns = @JoinColumn(name = "booking_id"),
+            inverseJoinColumns = @JoinColumn(name = "slot_id")
+    )
+    private List<Slot> slots;
+
     @ManyToOne
-    @JoinColumn(name = "slot_id")
-    private Slot slot;
+    @JoinColumn(name = "venue_Id")
+    private Venue venue;
+
 
 }

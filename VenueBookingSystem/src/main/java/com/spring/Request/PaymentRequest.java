@@ -13,4 +13,5 @@ public class PaymentRequest {
     private Integer bookingId;
     private Double amount;
     private PaymentMethod paymentMethod;
+    private String razorpayPaymentId;
 }

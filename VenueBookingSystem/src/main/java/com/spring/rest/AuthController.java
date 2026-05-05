@@ -31,7 +31,7 @@ public class AuthController {
      }
 
      @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request){
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request){
         String response= authService.register(request);
         return new ResponseEntity<String>(response, HttpStatus.CREATED);
 
@@ -39,9 +39,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody RegisterRequest request){
-        Authentication auth=authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        Authentication auth=authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUserEmail(), request.getUserPassword()));
         if(auth.isAuthenticated()){
-            String jwt=jwtService.generateToken(request.getUsername());
+            System.out.println(request.getUserEmail());
+            String jwt=jwtService.generateToken(request.getUserEmail());
             return new ResponseEntity<String>(jwt, HttpStatus.OK);
         }
         else{

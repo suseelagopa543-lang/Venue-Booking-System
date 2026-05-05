@@ -18,13 +18,16 @@ public class Vendor {
     private Integer vendorId;
     private String businessName;
     private String businessAddress;
-    private String approvalStatus;
+
+    @Enumerated(EnumType.STRING)
+    private ApprovalStatus approvalStatus=ApprovalStatus.PENDING;
+    @Enumerated(EnumType.STRING)
+    private Status vendorStatus=Status.ACTIVE;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "vendor")
-    private List<Booking> bookings;
-
+    @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Venue> venues;
 }

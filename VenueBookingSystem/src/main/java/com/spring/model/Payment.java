@@ -24,8 +24,15 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
     private LocalDateTime paymentTime;
+    private String razorpayPaymentId;
 
     @OneToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
+
+
+
+//    @OneToOne
+//    @JoinColumn(name = "booking_id")
+//    private Booking booking;
 }

@@ -1,12 +1,15 @@
 package com.spring.service;
 
+import com.spring.Request.SlotDTO;
 import com.spring.exception.ResourceNotFoundException;
-import com.spring.model.Slot;
-import com.spring.model.SlotStatus;
-import com.spring.model.Venue;
+import com.spring.model.*;
 import com.spring.repo.SlotRepo;
+import com.spring.repo.UserRepo;
+import com.spring.repo.VendorRepo;
 import com.spring.repo.VenueRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,67 +22,137 @@ public class SlotService
 {
     private SlotRepo slotRepo;
     private VenueRepo venueRepo;
+    private UserRepo userRepo;
+    private VendorRepo vendorRepo;
 
     @Autowired
-    public SlotService(SlotRepo slotRepo, VenueRepo venueRepo)
+    public SlotService(SlotRepo slotRepo,VenueRepo venueRepo,UserRepo userRepo,VendorRepo vendorRepo)
     {
-        this.venueRepo = venueRepo;
+
         this.slotRepo = slotRepo;
+        this.venueRepo=venueRepo;
+        this.userRepo=userRepo;
+        this.vendorRepo=vendorRepo;
     }
-    // Create a new slot for a venue
+
+    // Generate Slot
     @Transactional
-    public Slot createSlot(Integer venueId,
-                           LocalDate date,
-                           LocalTime start,
-                           LocalTime end)
-    {
-        if (venueId == null || date == null || start == null || end == null) {
-            throw new IllegalArgumentException("Invalid input");
-        }
+    public void generateSlots(Integer venueId, LocalDate date, LocalTime start, LocalTime end) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User user = userRepo.findActiveUserByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with email: " + username));
+
+        Vendor vendor = vendorRepo.findByUser_UserId(user.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Vendor not found for user with email: " + username));
+
+        // ✅ 2. Fetch venue
         Venue venue = venueRepo.findById(venueId)
-                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with id "+venueId));
+                .orElseThrow(() -> new RuntimeException("Venue not found"));
 
-        if (!start.isBefore(end))
-        {
-            throw new IllegalArgumentException("Start time must be before end time");
+        // 🔒 3. Ownership check (MAIN FIX)
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!venue.getVendor().getVendorId().equals(vendor.getVendorId())) {
+            throw new RuntimeException("Unauthorized: You cannot create slots for this venue");
         }
 
-        boolean exists = slotRepo
-                .existsByVenue_VenueIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                        venueId, date, end, start
+        LocalTime current = start;
+
+        while (current.isBefore(end)) {
+
+            LocalTime slotEnd = current.plusHours(1);
+
+            boolean exists = slotRepo.existsByVenue_VenueIdAndDateAndStartTimeAndEndTime(
+                    venueId, date, current, slotEnd
+            );
+
+            if (exists) {
+                throw new RuntimeException(
+                        "Slot already exists for time: " + current + " - " + slotEnd
                 );
+            }
 
-        if (exists) {
-            throw new IllegalStateException("Slot overlaps with existing slot");
+            boolean overlap = slotRepo.existsByVenue_VenueIdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                    venueId,
+                    date,
+                    slotEnd,
+                    current
+            );
+
+            if (overlap) {
+                throw new RuntimeException(
+                        "Slot overlaps with existing slot: " + current + " - " + slotEnd
+                );
+            }
+
+            // ✅ Create slot
+            Slot slot = new Slot();
+            slot.setDate(date);
+            slot.setStartTime(current);
+            slot.setEndTime(slotEnd);
+            slot.setSlotStatus(SlotStatus.AVAILABLE);
+            slot.setVenue(venue);
+
+            slotRepo.save(slot);
+
+            current = slotEnd;
         }
-
-        Slot slot = new Slot();
-        slot.setDate(date);
-        slot.setStartTime(start);
-        slot.setEndTime(end);
-        slot.setVenue(venue);
-        slot.setSlotStatus(SlotStatus.AVAILABLE);
-
-        return slotRepo.save(slot);
     }
 
-    //Get slots by venue
-    public List<Slot> getSlotsByVenue(Integer venueId) {
-        if (venueId==null) {
+    //Available slots by venue
+    public List<SlotDTO> getAvailableSlotsByVenue(Integer venueId) {
+
+        if (venueId == null) {
             throw new IllegalArgumentException("Venue Id cannot be null");
         }
-         return slotRepo.findByVenue_VenueId(venueId);
 
+        List<Slot> slots= slotRepo.findByVenue_VenueIdAndSlotStatus(
+                venueId,
+                SlotStatus.AVAILABLE
+        );
+
+        return  slots.stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+    public SlotDTO mapToDTO(Slot slot) {
+        SlotDTO dto = new SlotDTO();
+        dto.setSlotId(slot.getSlotId());
+        dto.setDate(slot.getDate());
+        dto.setStartTime(slot.getStartTime());
+        dto.setEndTime(slot.getEndTime());
+        dto.setSlotStatus(slot.getSlotStatus().name());
+        return dto;
     }
 
-    //get slots by date
-    public List<Slot> getSlotsByDate(Integer venueId, LocalDate date) {
-        if(date == null ||venueId==null){
+    //Available slots by Date
+    public List<SlotDTO> getAvailableSlotsByDate(Integer venueId, LocalDate date) {
+
+        if (venueId == null || date == null) {
             throw new IllegalArgumentException("Date and Venue Id cannot be null");
         }
 
-        return  slotRepo.findByVenue_VenueIdAndDate(venueId,date);
+        List<Slot> slot= slotRepo.findByVenue_VenueIdAndDateAndSlotStatusOrderByStartTimeAsc(
+                venueId,
+                date,
+                SlotStatus.AVAILABLE
+        );
+
+        return  slot.stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
+    public List<SlotDTO> getAllSlots() {
+        List<Slot> slots = slotRepo.findAll();
+
+        return slots.stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
 }

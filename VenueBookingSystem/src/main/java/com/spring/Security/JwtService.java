@@ -4,41 +4,21 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.util.Base64;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.security.Key;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Claims;
 
 @Service
 public class JwtService {
 
-    private static final String  secretKey="7A9F2C4E6B8D1F3A5C7E9B2D4F6A8C1E3B5D7F9A2C4E6B8D1F3A5C7E9B2D4F";
+    private static final String  secretKey="N2E5OTJhMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Ng==";
 
 
-
-//    public JwtService() {
-//
-//        this.secretKey = getTheSecretKey();
-//    }
-//    private String getTheSecretKey() {
-//        try {
-//            KeyGenerator key=KeyGenerator.getInstance("HmacSHA256");
-//            SecretKey secret=key.generateKey();
-//            return Base64.getEncoder().encodeToString(secret.getEncoded());
-//        }
-//        catch (Exception e) {
-//            throw new RuntimeException("Error in generating the Key " + e.getMessage());
-//        }
-//    }
     public String generateToken(String name){
         Map<String, Object> claims=new HashMap<>();
         return Jwts.builder()

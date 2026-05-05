@@ -1,15 +1,16 @@
 package com.spring.service;
 
 import com.spring.exception.ResourceNotFoundException;
-import com.spring.model.Booking;
-import com.spring.model.User;
+import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.UserRepo;
+import com.spring.repo.VendorRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,12 +18,14 @@ import java.util.List;
 public class UserService {
     public UserRepo userRepo;
     public BookingRepo bookingRepo;
+    public VendorRepo vendorRepo;
 
 
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepo userRepo, BookingRepo bookingRepo, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepo userRepo, BookingRepo bookingRepo, PasswordEncoder passwordEncoder, VendorRepo vendorRepo) {
+         this.vendorRepo = vendorRepo;
          this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
         this.bookingRepo = bookingRepo;
@@ -34,40 +37,47 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    // Get user details by ID
-    public User getUserDetails(Integer userId) {
-        return userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    // Get user details
+    public User getUserDetails() {
+        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
+        String username=auth.getName();
+
+
+        return userRepo.findActiveUserByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found "));
     }
 
     // Update user details (only non-null fields will be updated)
-    public User updateUser(Integer userId, User updatedUser) {
+    @Transactional
+    public User updateUser(User updatedUser) {
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
+        String username=auth.getName();
+
+
+        User user = userRepo.findActiveUserByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found "));
 
         if (updatedUser.getUserName() != null) {
             user.setUserName(updatedUser.getUserName());
         }
 
-        if (updatedUser.getUserEmail() != null) {
+        if (updatedUser.getUserEmail() != null && !updatedUser.getUserEmail().equals(user.getUserEmail())) {
+            if(userRepo.existsByUserEmail(updatedUser.getUserEmail())){
+                throw new RuntimeException("Email already in use by another user.");
+            }
             user.setUserEmail(updatedUser.getUserEmail());
         }
 
-        if (updatedUser.getPhoneNumber() != null) {
+        if (updatedUser.getPhoneNumber() != null && !updatedUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+            if(userRepo.existsByPhoneNumber(updatedUser.getPhoneNumber())){
+                throw new RuntimeException("Phone number already in use by another user.");
+            }
             user.setPhoneNumber(updatedUser.getPhoneNumber());
         }
 
-        if (updatedUser.getStatus() != null) {
-            user.setStatus(updatedUser.getStatus());
-        }
-
-        if (updatedUser.getRole() != null) {
-            user.setRole(updatedUser.getRole());
-        }
-
         // Password (encode before saving)
-        if (updatedUser.getUserPassword() != null) {
+        if (updatedUser.getUserPassword() != null && !updatedUser.getUserPassword().isBlank()) {
             user.setUserPassword(passwordEncoder.encode(updatedUser.getUserPassword())); // encode in real app
         }
 
@@ -75,7 +85,102 @@ public class UserService {
     }
 
     // Get all bookings for a user
-    public List<Booking> getUserBooking(Integer userId) {
-        return bookingRepo.findByUser_UserId(userId);
+    public List<Booking> getMyBookings() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        User user = userRepo.findActiveUserByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return bookingRepo.findByUser_UserId(user.getUserId());
+    }
+
+    //delete user account by user
+    @Transactional
+    public String deleteMyAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // usually email or username
+
+        User user = userRepo.findActiveUserByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getRole() == Role.VENDOR) {
+
+            Vendor vendor = vendorRepo.findByUser_UserId(user.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+
+             vendor.setVendorStatus(Status.INACTIVE);// delete vendor first
+             vendorRepo.save(vendor);
+        }
+
+        user.setUserStatus(Status.INACTIVE);
+        userRepo.save(user);
+        return "User account deleted successfully";
+    }
+
+    //delete user account by admin
+    @Transactional
+    public String deleteUserById(Integer userId) {
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (user.getRole() == Role.VENDOR) {
+
+            Vendor vendor = vendorRepo.findByUser_UserId(user.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+
+            vendor.setVendorStatus(Status.INACTIVE); // delete vendor first
+            vendorRepo.save(vendor);
+        }
+
+        user.setUserStatus(Status.INACTIVE);
+        userRepo.save(user);
+
+        return "User deleted successfully";
+    }
+
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    public User updateUserByAdmin(Integer userId, User updatedUser) {
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updatedUser.getUserName() != null) {
+            user.setUserName(updatedUser.getUserName());
+        }
+
+        if (updatedUser.getUserEmail() != null &&
+                !updatedUser.getUserEmail().equals(user.getUserEmail())) {
+
+            if (userRepo.existsByUserEmail(updatedUser.getUserEmail())) {
+                throw new RuntimeException("Email already exists");
+            }
+
+            user.setUserEmail(updatedUser.getUserEmail());
+        }
+
+        if (updatedUser.getPhoneNumber() != null &&
+                !updatedUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+
+            if (userRepo.existsByPhoneNumber(updatedUser.getPhoneNumber())) {
+                throw new RuntimeException("Phone number already exists");
+            }
+
+            user.setPhoneNumber(updatedUser.getPhoneNumber());
+        }
+
+        if (updatedUser.getRole() != null) {
+            user.setRole(updatedUser.getRole());
+        }
+
+        if (updatedUser.getUserStatus() != null) {
+            user.setUserStatus(updatedUser.getUserStatus());
+        }
+
+        return userRepo.save(user);
     }
 }

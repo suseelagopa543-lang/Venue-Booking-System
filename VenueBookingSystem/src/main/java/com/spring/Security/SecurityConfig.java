@@ -1,6 +1,5 @@
 package com.spring.Security;
 
-import com.spring.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,23 +40,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
          http.csrf(customizer -> customizer.disable());
-         http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/register","/auth/login").permitAll()
-                  //Admin has authority on anything
-             .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // Admin can access user management endpoints
+         //register and login are public endpoints
+         http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
+                 //venues all get methods are public
+                 .requestMatchers(HttpMethod.GET,"/venues/**").permitAll()
+                 // Admin
+                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                 // User methods - only accessible by users
-                 .requestMatchers("/user/**").hasAuthority("ROLE_USER") // Users can access their own bookings and methods
+                 // User
+                 //.requestMatchers("/users/**").hasRole("USER")
+                 .requestMatchers("/users/**").hasAnyRole("USER","ADMIN")
 
-                 // Vendors can access their own venues and methods
-                 .requestMatchers("/vendor/**").hasAuthority("ROLE_VENDOR") // Vendors can access their own venues and methods
+                 // Vendor
+                 .requestMatchers("/vendor/**").hasRole("VENDOR")
 
+                 // Venue management (Vendor + Admin)
+                 .requestMatchers(HttpMethod.POST, "/venues/add")
+                 .hasAnyRole("VENDOR","ADMIN")
 
-                 // Venues - Users can GET (read) venues, Vendors can manage (GET, POST, PUT, DELETE)
-                 .requestMatchers(HttpMethod.GET, "/venues/**").hasAnyRole("USER", "VENDOR", "ADMIN")
-                 .requestMatchers(HttpMethod.POST, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
-                 .requestMatchers(HttpMethod.PUT, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
-                 .requestMatchers(HttpMethod.DELETE, "/venues/**").hasAnyRole("VENDOR", "ADMIN")
-                 .anyRequest().authenticated());
+                 .requestMatchers(HttpMethod.PUT, "/venues/update/**")
+                 .hasAnyRole("VENDOR", "ADMIN")
+
+                 .requestMatchers(HttpMethod.DELETE, "/venues/delete/**")
+                 .hasAnyRole("VENDOR", "ADMIN")
+
+                 .anyRequest().authenticated()
+         );
+
          http.httpBasic(Customizer.withDefaults());
          http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                  .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -66,11 +75,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authProvider(){
-        DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
+    public AuthenticationProvider authenticationProvider() {
+        return new DaoAuthenticationProvider(passwordEncoder()) {{
+            setUserDetailsService(userDetailsService);
+        }};
     }
 
     @Bean

@@ -1,16 +1,18 @@
 package com.spring.rest;
 
+import com.spring.Request.BookingDTO;
 import com.spring.model.Booking;
 import com.spring.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/Booking")
+@RequestMapping("/bookings")
 public class BookingController {
 
     private BookingService bookingService;
@@ -21,28 +23,31 @@ public class BookingController {
     }
 
     @PostMapping("/book")
-    public ResponseEntity<Booking> bookSlot(@RequestParam Integer userId,@RequestParam  Integer slotId) {
-       Booking booking = bookingService.bookSlot(userId, slotId);
-       return new ResponseEntity<>(booking, HttpStatus.CREATED);
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<BookingDTO> bookSlot(@RequestParam  List<Integer>  slotIds) {
+        Booking booking = bookingService.bookSlots(slotIds);
+
+        BookingDTO dto = bookingService.mapToDTO(booking);
+
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
 
     }
 
     @PostMapping("/cancel/{bookingId}")
-    public ResponseEntity<Booking> cancelBooking(@PathVariable Integer bookingId) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<BookingDTO> cancelBooking(@PathVariable Integer bookingId) {
         Booking booking = bookingService.cancelBooking(bookingId);
-        return new ResponseEntity<>(booking, HttpStatus.OK);
+        BookingDTO dto = bookingService.mapToDTO(booking);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Booking> getBooking(@PathVariable Integer bookingId) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<BookingDTO> getBooking(@PathVariable Integer bookingId) {
         Booking booking = bookingService.getBookingById(bookingId);
-        return new ResponseEntity<>(booking, HttpStatus.OK);
+        BookingDTO dto = bookingService.mapToDTO(booking);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable Integer userId) {
-        List<Booking> bookings = bookingService.getUserBookings(userId);
-        return new ResponseEntity<>(bookings, HttpStatus.OK);
-    }
 
 }

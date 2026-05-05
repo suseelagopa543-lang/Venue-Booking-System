@@ -1,6 +1,8 @@
 package com.spring.model;
 
 public enum BookingStatus {
-    BOOKED,
-    CANCELLED
+    ACTIVE,
+    CANCELLED,
+    COMPLETED,
+    PENDING
 }
