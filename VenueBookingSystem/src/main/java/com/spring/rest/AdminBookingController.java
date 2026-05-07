@@ -26,7 +26,7 @@ public class AdminBookingController {
     @PutMapping("/admin/bookings/{id}/cancel")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> cancelBooking(@PathVariable Integer id) {
-        bookingService.cancelBooking(id);
+        bookingService.adminCancelBooking(id);
         return ResponseEntity.ok("Booking cancelled successfully");
     }
 }

@@ -49,11 +49,10 @@ public class SlotService
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Vendor not found for user with email: " + username));
 
-        // ✅ 2. Fetch venue
         Venue venue = venueRepo.findById(venueId)
                 .orElseThrow(() -> new RuntimeException("Venue not found"));
 
-        // 🔒 3. Ownership check (MAIN FIX)
+
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
@@ -90,7 +89,6 @@ public class SlotService
                 );
             }
 
-            // ✅ Create slot
             Slot slot = new Slot();
             slot.setDate(date);
             slot.setStartTime(current);
@@ -115,6 +113,9 @@ public class SlotService
                 venueId,
                 SlotStatus.AVAILABLE
         );
+        if (slots.isEmpty()) {
+            throw new RuntimeException("No available slots found for the given venue");
+        }
 
         return  slots.stream()
                 .map(this::mapToDTO)
@@ -142,6 +143,9 @@ public class SlotService
                 date,
                 SlotStatus.AVAILABLE
         );
+        if (slot.isEmpty()) {
+            throw new RuntimeException("No available slots found for the given date and venue");
+        }
 
         return  slot.stream()
                 .map(this::mapToDTO)
@@ -150,6 +154,9 @@ public class SlotService
 
     public List<SlotDTO> getAllSlots() {
         List<Slot> slots = slotRepo.findAll();
+        if (slots.isEmpty()) {
+            throw new RuntimeException("No slots found");
+        }
 
         return slots.stream()
                 .map(this::mapToDTO)

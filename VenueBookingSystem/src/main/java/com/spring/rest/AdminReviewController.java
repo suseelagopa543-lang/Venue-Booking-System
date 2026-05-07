@@ -1,5 +1,6 @@
 package com.spring.rest;
 
+import com.spring.Request.ReviewRequest;
 import com.spring.model.Review;
 import com.spring.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +26,14 @@ public class AdminReviewController
 
     @DeleteMapping("/delete/{reviewId}")
     @PreAuthorize("hasRole('ADMIN')")
-    private ResponseEntity<String> deleteReview(Integer reviewId) {
+    private ResponseEntity<String> deleteReview(@PathVariable Integer reviewId) {
         return ResponseEntity.ok(reviewService.deleteReview(reviewId));
     }
 
     @PutMapping("/update/{reviewId}")
     @PreAuthorize("hasRole('ADMIN')")
-    private ResponseEntity<Review> updateReview(@PathVariable Integer reviewId, @RequestBody Review review) {
-        return ResponseEntity.ok(reviewService.updateReview(reviewId, review.getComment(), review.getRating()));
+    private ResponseEntity<Review> updateReview(@PathVariable Integer reviewId, @RequestBody ReviewRequest review) {
+        return ResponseEntity.ok(reviewService.updateReviewbyAdmin(reviewId, review.getComment(), review.getRating()));
     }
 
     @GetMapping("/{reviewId}")

@@ -1,5 +1,7 @@
 package com.spring.repo;
 
+import com.spring.model.Status;
+import com.spring.model.User;
 import com.spring.model.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +14,5 @@ public interface VenueRepo extends JpaRepository<Venue,Integer> {
     List<Venue> findByAreaContainingIgnoreCase(String location);
     List<Venue> findByVenueNameContainingIgnoreCaseAndAreaContainingIgnoreCase(String name, String location);
     Optional<Venue> findByVenueIdAndVendor_VendorId(Integer venueId, Integer getVendorId);
+    List<Venue> findByVenueStatus(Status userStatus);
 }

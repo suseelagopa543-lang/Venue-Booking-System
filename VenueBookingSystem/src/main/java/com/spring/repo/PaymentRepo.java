@@ -26,9 +26,9 @@ public interface PaymentRepo extends JpaRepository<Payment,Integer> {
 
     boolean existsByBooking_BookingId(Integer bookingId);
 
-    List<Payment> findByUserNotNull();
+    //List<Payment> findByBooking_User_UserId(Integer userId);
 
-    List<Payment> findByVendorNotNull();
+    //List<Payment> findByBooking_Venue_VenueId(Long venueId);
 
-    List<Payment> findByVenueNotNull();
+    List<Payment> findByBooking_Venue_Vendor_VendorId(Integer vendorId);
 }

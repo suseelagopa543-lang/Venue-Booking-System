@@ -10,14 +10,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/venues")
-public class AdminVenueController {
+public class AdminVenueController
+{
 
     @Autowired
     private VenueService venueService;
 
     @GetMapping("/admin/venues")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Venue> getAllVenues() {
+    public List<Venue> getAllVenues()
+    {
         return venueService.getAllVenues();
     }
 
@@ -33,7 +35,8 @@ public class AdminVenueController {
 
     @PutMapping("/admin/venues/{id}")
     public Venue updateVenue(@PathVariable Integer id,
-                             @RequestBody Venue venue) {
+                             @RequestBody Venue venue)
+    {
         return venueService.updateVenueByAdmin(id, venue);
     }
 

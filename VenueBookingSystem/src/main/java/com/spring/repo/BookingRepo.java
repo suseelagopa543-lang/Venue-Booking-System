@@ -39,4 +39,7 @@ public interface BookingRepo extends JpaRepository<Booking,Integer>
    );
 
     Optional<Booking> findTopByVenue_VenueId(Integer venueId);
+    List<Booking> findByBookingStatus(BookingStatus status);
+
+
 }

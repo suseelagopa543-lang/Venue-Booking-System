@@ -8,6 +8,7 @@ import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.PaymentRepo;
 import com.spring.repo.SlotRepo;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -142,16 +143,28 @@ public class PaymentService{
     }
 
 
-    public List<Payment> getAllUserPayments() {
-        return paymentRepo.findByUserNotNull();
+    public List<Payment> getAllUserPayments(Integer userId) {
+        List<Payment> payments= paymentRepo.findByBooking_User_UserId(userId);
+        if (payments.isEmpty()) {
+            throw new RuntimeException("There are no payments for this User");
+        }
+        return payments;
     }
 
-    public List<Payment> getAllVendorPayments() {
-        return paymentRepo.findByVendorNotNull();
+    public List<Payment> getAllVendorPayments(Integer vendorId) {
+        List<Payment> payments= paymentRepo.findByBooking_Venue_Vendor_VendorId(vendorId);
+        if (payments.isEmpty()) {
+            throw new RuntimeException("There are no payments for this Vendor");
+        }
+        return payments;
     }
 
-    public List<Payment> getAllVenuePayments() {
-        return paymentRepo.findByVenueNotNull();
+    public List<Payment> getAllVenuePayments(Integer venueID) {
+       List<Payment> payments= paymentRepo.findByBooking_Venue_VenueId(venueID);
+        if (payments.isEmpty()) {
+            throw new RuntimeException("There are no payments for this Venue");
+        }
+        return payments;
     }
 
 }

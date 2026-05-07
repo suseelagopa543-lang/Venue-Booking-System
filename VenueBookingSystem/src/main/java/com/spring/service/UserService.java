@@ -93,7 +93,11 @@ public class UserService {
         User user = userRepo.findActiveUserByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return bookingRepo.findByUser_UserId(user.getUserId());
+        List<Booking> bookings= bookingRepo.findByUser_UserId(user.getUserId());
+        if(bookings.isEmpty()){
+            throw new ResourceNotFoundException("No bookings found for this user");
+        }
+        return bookings;
     }
 
     //delete user account by user
@@ -141,9 +145,14 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        return userRepo.findAll();
+        List<User> users= userRepo.findByUserStatus(Status.ACTIVE);
+        if(users.isEmpty()){
+            throw new ResourceNotFoundException("No active users found");
+        }
+        return users;
     }
 
+    @Transactional
     public User updateUserByAdmin(Integer userId, User updatedUser) {
 
         User user = userRepo.findById(userId)

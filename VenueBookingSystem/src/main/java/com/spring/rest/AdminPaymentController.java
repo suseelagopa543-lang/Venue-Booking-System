@@ -5,9 +5,7 @@ import com.spring.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,24 +16,24 @@ public class AdminPaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    @GetMapping("/users")
+    @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Payment>> getAllUserPayments() {
-        return ResponseEntity.ok(paymentService.getAllUserPayments());
+    public ResponseEntity<List<Payment>> getAllUserPayments(@PathVariable Integer userId) {
+        return ResponseEntity.ok(paymentService.getAllUserPayments(userId));
     }
 
     // 🔹 All vendor payments
-    @GetMapping("/vendors")
+    @GetMapping("/vendors/{vendorId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Payment>> getAllVendorPayments() {
-        return ResponseEntity.ok(paymentService.getAllVendorPayments());
+    public ResponseEntity<List<Payment>> getAllVendorPayments(@PathVariable Integer  vendorId) {
+        return ResponseEntity.ok(paymentService.getAllVendorPayments(vendorId));
     }
 
     // 🔹 All venue payments
-    @GetMapping("/venues")
+    @GetMapping("/venues/{venueId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Payment>> getAllVenuePayments() {
-        return ResponseEntity.ok(paymentService.getAllVenuePayments());
+    public ResponseEntity<List<Payment>> getAllVenuePayments(@PathVariable Integer venueId) {
+        return ResponseEntity.ok(paymentService.getAllVenuePayments(venueId));
     }
 
 

@@ -10,8 +10,10 @@ import com.spring.repo.ReviewRepo;
 import com.spring.repo.UserRepo;
 import com.spring.repo.VenueRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -110,6 +112,7 @@ public class ReviewService {
     }
 
     // Update review
+    @Transactional
     public Review updateReview(Integer reviewId, String comment, int rating) {
 
         if (reviewId == null) {
@@ -139,6 +142,7 @@ public class ReviewService {
     }
 
     // Delete review
+    @Transactional
     public String deleteReview(Integer reviewId) {
 
         if (reviewId == null) {
@@ -153,12 +157,53 @@ public class ReviewService {
 
         Review review = reviewRepo.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
-        if (!review.getUser().getUserId().equals(user.getUserId())) {
-            throw new RuntimeException("You are not allowed to delete this review");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !review.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not allowed to update this review");
         }
+
         reviewRepo.delete(review);
 
         return "Review deleted successfully";
+    }
+
+    @Transactional
+    public Review updateReviewbyAdmin(Integer reviewId, String comment, int rating) {
+
+        if (reviewId == null) {
+            throw new IllegalArgumentException("Review ID cannot be null");
+        }
+
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        }
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        User user = userRepo.findActiveUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Review review = reviewRepo.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !review.getUser().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You are not allowed to update this review");
+        }
+
+        review.setComment(comment);
+        review.setRating(rating);
+
+        return reviewRepo.save(review);
     }
 
 }

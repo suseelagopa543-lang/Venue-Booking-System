@@ -212,7 +212,35 @@ public class BookingService {
     }
 
     public List<Booking> getAllBookings() {
-        return bookingRepo.findAll();
+        return bookingRepo.findByBookingStatus(BookingStatus.ACTIVE);
     }
 
+    @Transactional
+    public Booking adminCancelBooking(Integer bookingId) {
+
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking already cancelled");
+        }
+
+        List<Slot> slots = booking.getSlots();
+
+        for (Slot slot : slots) {
+            if (slot.getDate().isBefore(LocalDate.now())) {
+                throw new IllegalStateException("Cannot cancel past bookings");
+            }
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELLED);
+
+        for (Slot slot : slots) {
+            slot.setSlotStatus(SlotStatus.AVAILABLE);
+        }
+
+        slotRepo.saveAll(slots);
+
+        return bookingRepo.save(booking);
+    }
 }

@@ -24,12 +24,12 @@ public class AdminUserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PutMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> updateUserByAdmin(@PathVariable Integer userId, @RequestBody User updatedUser) {
-        User user = userService.updateUserByAdmin(userId,updatedUser);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
+        @PutMapping("/{userId}")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<User> updateUserByAdmin(@PathVariable Integer userId, @RequestBody User updatedUser) {
+            User user = userService.updateUserByAdmin(userId,updatedUser);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")

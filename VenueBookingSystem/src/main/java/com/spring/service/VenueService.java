@@ -220,7 +220,11 @@ public class VenueService {
     }
 
     public List<Venue> getAllVenues() {
-        return venueRepo.findAll();
+        List<Venue> venues= venueRepo.findByVenueStatus(Status.ACTIVE);
+        if(venues.isEmpty()){
+            throw new RuntimeException("No active venues found");
+        }
+        return venues;
     }
 
 

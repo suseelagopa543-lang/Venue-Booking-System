@@ -59,8 +59,8 @@ public class AuthService {
                 Vendor vendor = new Vendor();
                 vendor.setBusinessName(request.getBusinessName());
                 vendor.setBusinessAddress(request.getBusinessAddress());
-                vendor.setVendorStatus(Status.ACTIVE);
-                vendor.setApprovalStatus(ApprovalStatus.APPROVED);
+                vendor.setVendorStatus(Status.INACTIVE);
+                vendor.setApprovalStatus(ApprovalStatus.PENDING);
                 vendor.setUser(userSaved);
                 vendorRepo.save(vendor);
             }

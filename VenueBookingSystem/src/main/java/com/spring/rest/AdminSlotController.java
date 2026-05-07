@@ -34,7 +34,7 @@ public class AdminSlotController {
         return ResponseEntity.ok(slotService.getAvailableSlotsByDate(venueId ,date));
     }
 
-    @GetMapping("/by-time")
+    @GetMapping("/by-venue")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<SlotDTO>> getSlotsByVenue(
             @RequestParam Integer venueId) {

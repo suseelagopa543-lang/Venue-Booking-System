@@ -25,10 +25,11 @@ public class VendorService {
     private BookingRepo bookingRepo;
 
     @Autowired
-    public VendorService(VendorRepo vendorRepo, PasswordEncoder passwordEncoder, UserRepo userRepo) {
+    public VendorService(VendorRepo vendorRepo, PasswordEncoder passwordEncoder, UserRepo userRepo, BookingRepo bookingRepo) {
         this.passwordEncoder = passwordEncoder;
         this.vendorRepo = vendorRepo;
         this.userRepo = userRepo;
+        this.bookingRepo = bookingRepo;
     }
 
     // Get vendor details
@@ -70,7 +71,11 @@ public class VendorService {
         Vendor vendor = vendorRepo.findByUser_UserId(user.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found for user with email: " + username));
 
-        return bookingRepo.findActiveVendorBookings(vendor.getVendorId(), Status.ACTIVE);
+        List<Booking> bookings= bookingRepo.findActiveVendorBookings(vendor.getVendorId(), Status.ACTIVE);
+        if (bookings.isEmpty()) {
+            throw new RuntimeException("No active bookings found for this vendor");
+        }
+        return bookings;
     }
 
     @Transactional
@@ -141,7 +146,11 @@ public class VendorService {
 
 
     public List<Vendor> getAllVendors() {
-        return vendorRepo.findAll();
+        List<Vendor> vendors= vendorRepo.findByVendorStatus(Status.ACTIVE);
+        if(vendors.isEmpty()){
+            throw new RuntimeException("No active vendors found");
+        }
+        return vendors;
     }
 
     public String approveVendor(Integer id) {
@@ -152,6 +161,19 @@ public class VendorService {
         vendorRepo.save(vendor);
 
         return "Vendor approved";
+    }
+    public String rejectVendor(Integer id) {
+
+        Vendor vendor = vendorRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vendor not found"));
+
+        vendor.setApprovalStatus(ApprovalStatus.NOTAPPROVED);
+
+        vendor.setVendorStatus(Status.INACTIVE);
+
+        vendorRepo.save(vendor);
+
+        return "Vendor rejected";
     }
 
     @Transactional
@@ -169,7 +191,11 @@ public class VendorService {
         Vendor vendor = vendorRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Vendor not found"));
 
-        return bookingRepo.findActiveVendorBookings(vendor.getVendorId(), Status.ACTIVE);
+        List<Booking> bookings= bookingRepo.findActiveVendorBookings(vendor.getVendorId(), Status.ACTIVE);
+        if (bookings.isEmpty()) {
+            throw new RuntimeException("No active bookings found for this vendor");
+        }
+        return bookings;
     }
 
     @Transactional
