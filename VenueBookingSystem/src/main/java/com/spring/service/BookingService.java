@@ -1,7 +1,7 @@
 package com.spring.service;
 
-import com.spring.Request.BookingDTO;
-import com.spring.Request.SlotDTO;
+import com.spring.request.BookingDTO;
+import com.spring.request.SlotDTO;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.SlotRepo;

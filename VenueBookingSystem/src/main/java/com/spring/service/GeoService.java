@@ -1,6 +1,6 @@
 package com.spring.service;
 
-import com.spring.Request.GeoResponse;
+import com.spring.request.GeoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

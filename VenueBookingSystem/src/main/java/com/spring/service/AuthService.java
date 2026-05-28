@@ -1,6 +1,6 @@
 package com.spring.service;
 
-import com.spring.Request.RegisterRequest;
+import com.spring.request.RegisterRequest;
 import com.spring.model.*;
 import com.spring.repo.UserRepo;
 import com.spring.repo.VendorRepo;

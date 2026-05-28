@@ -98,6 +98,7 @@ public class UserService {
             throw new ResourceNotFoundException("No bookings found for this user");
         }
         return bookings;
+
     }
 
     //delete user account by user

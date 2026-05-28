@@ -1,6 +1,6 @@
 package com.spring.service;
 
-import com.spring.Request.SlotDTO;
+import com.spring.request.SlotDTO;
 import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.SlotRepo;

@@ -1,7 +1,7 @@
 package com.spring.service;
 
-import com.spring.Request.VendorResponse;
-import com.spring.Request.VendorUpdateRequest;
+import com.spring.request.VendorResponse;
+import com.spring.request.VendorUpdateRequest;
 import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;

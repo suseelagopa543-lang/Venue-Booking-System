@@ -1,15 +1,13 @@
 package com.spring.service;
 
-import com.spring.Request.GeoResponse;
-import com.spring.Request.VenueDTO;
+import com.spring.request.GeoResponse;
+import com.spring.request.VenueDTO;
 import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.UserRepo;
 import com.spring.repo.VendorRepo;
 import com.spring.repo.VenueRepo;
-import jakarta.persistence.Index;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

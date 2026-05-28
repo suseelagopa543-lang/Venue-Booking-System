@@ -1,14 +1,12 @@
 package com.spring.service;
 
-import com.spring.Request.PaymentRequest;
-import com.spring.Request.PaymentResponse;
-import com.spring.Request.VenuePaymentSummary;
+import com.spring.request.PaymentResponse;
+import com.spring.request.VenuePaymentSummary;
 import com.spring.exception.ResourceNotFoundException;
 import com.spring.model.*;
 import com.spring.repo.BookingRepo;
 import com.spring.repo.PaymentRepo;
 import com.spring.repo.SlotRepo;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
