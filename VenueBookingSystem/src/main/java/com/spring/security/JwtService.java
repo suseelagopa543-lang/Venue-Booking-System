@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.util.Date;
@@ -27,8 +28,19 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(name)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*10))
+                .setExpiration(new Date(System.currentTimeMillis()+15*60*1000))
                 .signWith(getKey(), SignatureAlgorithm.HS256).compact();
+    }
+
+    public String generateRefreshToken(String username){
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)
+                )
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key getKey() {
@@ -52,7 +64,7 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    public boolean validateToken(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
