@@ -1,10 +1,13 @@
 package com.spring.service;
 
+import com.spring.repo.RefreshTokenRepository;
 import com.spring.request.RegisterRequest;
 import com.spring.model.*;
 import com.spring.repo.UserRepo;
 import com.spring.repo.VendorRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +21,11 @@ public class AuthService {
     private VendorRepo vendorRepo;
     private PasswordEncoder passwordEncoder;
     private UserService userService;
+    private RefreshTokenRepository refreshTokenRepo;
 
     @Autowired
-    public AuthService(UserRepo userRepo, VendorRepo vendorRepo, PasswordEncoder passwordEncoder, UserService userService) {
+    public AuthService(UserRepo userRepo, VendorRepo vendorRepo, PasswordEncoder passwordEncoder, UserService userService, RefreshTokenRepository refreshTokenRepo) {
+        this.refreshTokenRepo = refreshTokenRepo;
         this.passwordEncoder = passwordEncoder;
         this.userRepo = userRepo;
         this.vendorRepo = vendorRepo;
@@ -67,4 +72,21 @@ public class AuthService {
 
             return "Registration successfully";
    }
+
+    @Transactional
+    public String logout(String refreshToken, Authentication authentication) {
+
+        String email = authentication.getName();
+
+        RefreshToken token = refreshTokenRepo.findByToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Token not found"));
+
+        if (!token.getUsername().equals(email)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        refreshTokenRepo.deleteByToken(refreshToken);
+
+        return "Logged Out Successfully";
+    }
 }

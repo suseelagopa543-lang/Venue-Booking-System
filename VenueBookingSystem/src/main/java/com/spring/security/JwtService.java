@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,12 @@ public class JwtService {
     @Value("${jwt.secretKey}")
     private String  secretKey;
 
+    @Value("${jwt.access-token-expiration}")
+    private Duration accessTokenExpiration;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private Duration refreshTokenExpiration;
+
 
     public String generateToken(String name){
         Map<String, Object> claims=new HashMap<>();
@@ -28,7 +35,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(name)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+15*60*1000))
+                .setExpiration(new Date(System.currentTimeMillis()+ accessTokenExpiration.toMillis()))
                 .signWith(getKey(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -37,7 +44,7 @@ public class JwtService {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)
+                        new Date(System.currentTimeMillis() + refreshTokenExpiration.toMillis())
                 )
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();

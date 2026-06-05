@@ -42,7 +42,8 @@ public class SecurityConfig {
          http.csrf(customizer -> customizer.disable());
          http.headers(headers -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()));
          //register and login are public endpoints
-         http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
+         http.authorizeHttpRequests(auth -> auth.requestMatchers("/auth/register","/auth/login","/auth/refresh").permitAll()
+                 .requestMatchers("/auth/logout").authenticated()
                  .requestMatchers("/h2-console/**").permitAll()
                  //venues all get methods are public
                  .requestMatchers(HttpMethod.GET,"/venues/**").permitAll()

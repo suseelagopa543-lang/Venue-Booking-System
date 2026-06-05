@@ -110,12 +110,10 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public String logout(
-            @RequestParam String refreshToken) {
+    public String logout(@RequestParam String refreshToken,Authentication authentication) {
 
-        refreshTokenRepo
-                .deleteByToken(refreshToken);
 
-        return "Logged Out Successfully";
+
+        return authService.logout(refreshToken,authentication);
     }
 }
