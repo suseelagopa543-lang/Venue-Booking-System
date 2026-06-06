@@ -1,4 +1,4 @@
-package com.spring.request;
+package com.spring.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

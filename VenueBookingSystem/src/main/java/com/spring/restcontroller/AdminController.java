@@ -52,18 +52,21 @@ public class AdminController
 
     //Get venue by id
     @GetMapping("/venues/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Venue getVenue(@PathVariable Integer id) {
         return venueService.getVenueById(id);
     }
 
     //Delete venue by id
     @DeleteMapping("/venues/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteVenue(@PathVariable Integer id) {
         return venueService.deleteVenue(id);
     }
 
     //Update venue
     @PutMapping("/venues/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Venue updateVenue(@PathVariable Integer id,
                              @RequestBody Venue venue)
     {
